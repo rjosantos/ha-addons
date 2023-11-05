@@ -18,7 +18,7 @@ options:
   clients:
     - default
   own_messages:
-    - default
+    - false
 schema:
   clients:
     - str
