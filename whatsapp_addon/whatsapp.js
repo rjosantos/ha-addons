@@ -3,7 +3,8 @@ const EventEmitter = require("eventemitter2");
 const makeWASocket = require("./Baileys").default;
 const {
     DisconnectReason,
-    useSingleFileAuthState
+    useSingleFileAuthState,
+    downloadMediaMessage
 } = require("./Baileys");
 
 const MessageType = {
@@ -151,7 +152,15 @@ class WhatsappClient extends EventEmitter {
             if (msg.hasOwnProperty('message') && (!msg.key.fromMe || this.#own_messages)) {
                 delete msg.message.messageContextInfo;
                 const messageType = Object.keys(msg.message)[0]
-                this.emit('msg', { type: messageType, ...msg })
+
+                var mediaBuffer;
+                if (messageType === 'imageMessage') {
+                    // download the message
+                    const buffer = await downloadMediaMessage(msg, 'buffer', { }, { });
+                    mediaBuffer = buffer.toString('base64');
+                }
+
+                this.emit('msg', { type: messageType, media: mediaBuffer, ...msg })
             }
         })
 
