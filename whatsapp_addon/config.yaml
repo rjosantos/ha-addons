@@ -17,6 +17,10 @@ map:
 options:
   clients:
     - default
+  own_messages:
+    - default
 schema:
   clients:
     - str
+  own_messages:
+    - bool

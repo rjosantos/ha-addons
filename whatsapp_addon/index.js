@@ -86,29 +86,30 @@ const onPresenceUpdate = (presence, key) => {
   logger.debug(`New presence event fired from ${key}.`);
 }
 
-const onLogout = async (key) => {
+const onLogout = async (key, own_messages) => {
   logger.info(`Client ${key} was logged out. Restarting...`);
   fs.unlinkSync(`/data/${key}.json`);
 
-  init(key);
+  init(key, own_messages);
 }
 
-const init = (key) => {
+const init = (key, own_messages) => {
   clients[key] = new WhatsappClient({ path: `/data/${key}.json` });
 
   clients[key].on('restart', () => logger.debug(`${key} client restarting...`))
   clients[key].on("qr", (qr) => onQr(qr, key));
   clients[key].once("ready", () => onReady(key));
   clients[key].on("msg", (msg) => onMsg(msg, key));
-  clients[key].on("logout", () => onLogout(key));
+  clients[key].on("logout", () => onLogout(key, own_messages));
   clients[key].on("presence_update", (presence) => onPresenceUpdate(presence, key));
 }
 
 fs.readFile("data/options.json", function (error, content) {
   var options = JSON.parse(content);
+  var own_messages = options.own_messages;
 
   options.clients.forEach((key) => {
-    init(key);
+    init(key, own_messages);
   });
 
   app.listen(port, () => logger.info(`Whatsapp Addon started.`));

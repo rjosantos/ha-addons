@@ -3,3 +3,6 @@ configuration:
   clients:
     name: Clients
     description: Create other clients
+  own_messages:
+    name: Own messages
+    description: Receive own messages on event 'new_whatsapp_message'

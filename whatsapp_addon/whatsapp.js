@@ -19,6 +19,7 @@ const MessageType = {
 class WhatsappClient extends EventEmitter {
     #conn;
     #path;
+    #own_messages;
     #refreshInterval;
     #sendPresenceUpdateInterval;
     #timeout;
@@ -35,9 +36,10 @@ class WhatsappClient extends EventEmitter {
 
     #toMilliseconds = (hrs, min, sec) => (hrs * 60 * 60 + min * 60 + sec) * 1000;
 
-    constructor({ path, timeout = 1e3, attempts = Infinity, offline = true, refreshMs }) {
+    constructor({ path, own_messages, timeout = 1e3, attempts = Infinity, offline = true, refreshMs }) {
         super();
         this.#path = path;
+        this.#own_messages = own_messages;
         this.#timeout = timeout;
         this.#attempts = attempts;
         this.#offline = offline;
@@ -146,8 +148,7 @@ class WhatsappClient extends EventEmitter {
         this.#conn.ev.on('messages.upsert', async ({ messages }) => {
             const msg = messages[0]
 
-            //&& !msg.key.fromMe
-            if (msg.hasOwnProperty('message') ) {
+            if (msg.hasOwnProperty('message') && (!msg.key.fromMe || this.#own_messages)) {
                 delete msg.message.messageContextInfo;
                 const messageType = Object.keys(msg.message)[0]
                 this.emit('msg', { type: messageType, ...msg })
