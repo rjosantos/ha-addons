@@ -146,7 +146,8 @@ class WhatsappClient extends EventEmitter {
         this.#conn.ev.on('messages.upsert', async ({ messages }) => {
             const msg = messages[0]
 
-            if (msg.hasOwnProperty('message') && !msg.key.fromMe) {
+            //&& !msg.key.fromMe
+            if (msg.hasOwnProperty('message') ) {
                 delete msg.message.messageContextInfo;
                 const messageType = Object.keys(msg.message)[0]
                 this.emit('msg', { type: messageType, ...msg })
