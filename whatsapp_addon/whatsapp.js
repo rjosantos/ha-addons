@@ -149,12 +149,13 @@ class WhatsappClient extends EventEmitter {
         this.#conn.ev.on('messages.upsert', async ({ messages }) => {
             const msg = messages[0]
 
+            console.log('own_messages: ' + this.#own_messages);
             if (msg.hasOwnProperty('message') && (!msg.key.fromMe || this.#own_messages)) {
                 delete msg.message.messageContextInfo;
                 const messageType = Object.keys(msg.message)[0]
 
                 var mediaBuffer;
-                if (messageType === 'imageMessage') {
+                if (messageType === 'imageMessage' || messageType === 'audioMessage' || messageType === 'documentMessage') {
                     // download the message
                     const buffer = await downloadMediaMessage(msg, 'buffer', { }, { });
                     mediaBuffer = buffer.toString('base64');

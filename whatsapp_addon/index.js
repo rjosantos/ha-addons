@@ -93,8 +93,8 @@ const onLogout = async (key, own_messages) => {
   init(key, own_messages);
 }
 
-const init = (key, own_messages) => {
-  clients[key] = new WhatsappClient({ path: `/data/${key}.json` }, own_messages);
+const init = (key, _own_messages) => {
+  clients[key] = new WhatsappClient({ path: `/data/${key}.json`, own_messages: _own_messages});
 
   clients[key].on('restart', () => logger.debug(`${key} client restarting...`))
   clients[key].on("qr", (qr) => onQr(qr, key));
