@@ -7,6 +7,8 @@ const {
     downloadMediaMessage
 } = require("./Baileys");
 
+const fsp = require('fs/promises');
+
 const MessageType = {
     text: "conversation",
     location: "locationMessage",
@@ -21,6 +23,7 @@ class WhatsappClient extends EventEmitter {
     #conn;
     #path;
     #own_messages;
+    #media_path;
     #refreshInterval;
     #sendPresenceUpdateInterval;
     #timeout;
@@ -37,10 +40,11 @@ class WhatsappClient extends EventEmitter {
 
     #toMilliseconds = (hrs, min, sec) => (hrs * 60 * 60 + min * 60 + sec) * 1000;
 
-    constructor({ path, own_messages, timeout = 1e3, attempts = Infinity, offline = true, refreshMs }) {
+    constructor({ path, own_messages, media_path, timeout = 1e3, attempts = Infinity, offline = true, refreshMs }) {
         super();
         this.#path = path;
         this.#own_messages = own_messages;
+        this.#media_path = media_path;
         this.#timeout = timeout;
         this.#attempts = attempts;
         this.#offline = offline;
@@ -147,22 +151,35 @@ class WhatsappClient extends EventEmitter {
         if (this.#offline) this.setSendPresenceUpdateInterval('unavailable')
 
         this.#conn.ev.on('messages.upsert', async ({ messages }) => {
-            const msg = messages[0]
+            messages.forEach(async (msg, index) => {
+                msg.key.id = msg.key.id + '-' + index;
+                //const msg = messages[0]
 
-            console.log('own_messages: ' + this.#own_messages);
-            if (msg.hasOwnProperty('message') && (!msg.key.fromMe || this.#own_messages)) {
-                delete msg.message.messageContextInfo;
-                const messageType = Object.keys(msg.message)[0]
+                if (msg.hasOwnProperty('message') && (!msg.key.fromMe || this.#own_messages)) {
+                    delete msg.message.messageContextInfo;
+                    const messageType = Object.keys(msg.message)
+                    const id = msg.key.id;
 
-                var mediaBuffer;
-                if (messageType === 'imageMessage' || messageType === 'audioMessage' || messageType === 'documentMessage') {
-                    // download the message
-                    const buffer = await downloadMediaMessage(msg, 'buffer', { }, { });
-                    mediaBuffer = buffer.toString('base64');
-                }
+                    var mediaTypes = ['imageMessage', 'audioMessage', 'documentMessage', 'videoMessage', 'stickerMessage'];
+                    var mediaBuffer;
 
-                this.emit('msg', { type: messageType, media: mediaBuffer, ...msg })
-            }
+                    var hasMedia = false;
+                    mediaTypes.forEach(async (e, index) => {
+                        if (messageType.includes(e)) 
+                            hasMedia = true;
+                    });
+                    var mediaPath = '';
+                    if (hasMedia) {
+                        // download the message
+                        const buffer = await downloadMediaMessage(msg, 'buffer', { }, { });
+                        mediaBuffer = buffer.toString('base64');
+                        mediaPath = this.#media_path + '/' + id + '.bin';
+                        await fsp.writeFile(mediaPath, buffer);
+                    }
+
+                    this.emit('msg', { type: messageType, media_path: mediaPath, ...msg })
+                }                
+            });
         })
 
         this.#conn.ev.on("presence.update", (presence) => {
