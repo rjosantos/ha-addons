@@ -33,10 +33,15 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
     async def send_infinity_presence_update(call: ServiceCall) -> None:
         await hass.async_add_executor_job(whatsapp.send_infinity_presence_update, call.data)
 
+    @callback
+    async def get_group_metadata(call: ServiceCall) -> None:
+        await hass.async_add_executor_job(whatsapp.get_group_metadata, call.data)
+
     hass.services.async_register(DOMAIN, 'send_message', send_message)
     hass.services.async_register(DOMAIN, 'set_status', set_status)
     hass.services.async_register(DOMAIN, 'presence_subscribe', presence_subscribe)
     hass.services.async_register(DOMAIN, 'send_presence_update', send_presence_update)
     hass.services.async_register(DOMAIN, 'send_infinity_presence_update', send_infinity_presence_update)
+    hass.services.async_register(DOMAIN, 'get_group_metadata', get_group_metadata)
 
     return True

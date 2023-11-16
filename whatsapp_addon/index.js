@@ -230,4 +230,29 @@ fs.readFile("data/options.json", function (error, content) {
       res.send("KO");
     }
   });
+
+  app.post("/getGroupMetadata", (req, res) => {
+    const message = req.body;
+    if (message.hasOwnProperty("clientId")) {
+      if (clients.hasOwnProperty(message.clientId)) {
+        const wapp = clients[message.clientId];
+        wapp
+          .getGroupMetadata(message.group_id)
+          .then((metadata) => {
+            res.send(metadata);
+            logger.debug("Group Metadata get successfully.");
+          })
+          .catch((error) => {
+            res.send("KO");
+            logger.error(error.message);
+          });
+      } else {
+        logger.error("Error in sending message. Client ID not found.");
+        res.send("KO");
+      }
+    } else {
+      logger.error("Error in sending message. Please specify client ID.");
+      res.send("KO");
+    }
+  });
 });

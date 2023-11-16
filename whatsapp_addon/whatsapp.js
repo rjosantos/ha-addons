@@ -307,6 +307,18 @@ class WhatsappClient extends EventEmitter {
             throw new WhatsappError(err.output.payload.statusCode)
         }
     }
+
+    getGroupMetadata = async (groupID) => {
+        if (this.#status.disconnected || !this.#status.connected) {
+            throw new WhatsappDisconnectedError()
+        }
+
+        try {
+            return await this.#conn.groupMetadata(groupID);
+        } catch (err) {
+            throw new WhatsappError(err.output.payload.statusCode)
+        }
+    }
 }
 
 class WhatsappNumberNotFoundError extends Error {

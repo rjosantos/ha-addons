@@ -18,3 +18,6 @@ class Whatsapp:
 
     def send_infinity_presence_update(self, data):
         return requests.post(url_normalize(f'{HOST}/sendInfinityPresenceUpdate'), json=data).content == 'OK'
+
+    def get_group_metadata(self, data):
+        return requests.post(url_normalize(f'{HOST}/getGroupMetadata'), json=data).content == 'OK'
