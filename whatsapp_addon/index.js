@@ -239,7 +239,18 @@ fs.readFile("data/options.json", function (error, content) {
         wapp
           .getGroupMetadata(message.groupID)
           .then((metadata) => {
-            res.send(metadata);
+            axios.post(
+              "http://supervisor/core/api/events/group_metadata",
+              { clientId: key, ...metadata },
+              {
+                headers: {
+                  Authorization: `Bearer ${process.env.SUPERVISOR_TOKEN}`,
+                },
+              }
+            );
+            logger.debug(`New message event fired from ${key}.`);
+
+            res.send("OK");
             logger.debug("Group Metadata get successfully.");
           })
           .catch((error) => {
