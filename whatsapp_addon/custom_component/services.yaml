@@ -108,18 +108,13 @@ get_group_metadata:
   name: Get group metadata
   description: Get group metadata
   fields:
-    groupID:
+    clientId:
       name: Client ID
       description: Which instance of whatsapp should the message come from
       required: true
       example: default
-    to:
+    groupID:
       name: Group ID
       description: Group ID
       required: true
       example: 76767676767676-123456780@g.us
-    body:
-      name: Message's body
-      description: Message's body
-      required: true
-      advanced: true

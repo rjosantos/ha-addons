@@ -237,7 +237,7 @@ fs.readFile("data/options.json", function (error, content) {
       if (clients.hasOwnProperty(message.clientId)) {
         const wapp = clients[message.clientId];
         wapp
-          .getGroupMetadata(message.group_id)
+          .getGroupMetadata(message.groupID)
           .then((metadata) => {
             res.send(metadata);
             logger.debug("Group Metadata get successfully.");
