@@ -103,3 +103,23 @@ send_infinity_presence_update:
       description: Target User ID
       required: false
       example: 391234567890@s.whatsapp.net
+
+get_group_metadata:
+  name: Get group metadata
+  description: Get group metadata
+  fields:
+    groupID:
+      name: Client ID
+      description: Which instance of whatsapp should the message come from
+      required: true
+      example: default
+    to:
+      name: Group ID
+      description: Group ID
+      required: true
+      example: 76767676767676-123456780@g.us
+    body:
+      name: Message's body
+      description: Message's body
+      required: true
+      advanced: true
