@@ -241,7 +241,7 @@ fs.readFile("data/options.json", function (error, content) {
           .then((metadata) => {
             axios.post(
               "http://supervisor/core/api/events/group_metadata",
-              { clientId: key, ...metadata },
+              { clientId: message.clientId, ...metadata },
               {
                 headers: {
                   Authorization: `Bearer ${process.env.SUPERVISOR_TOKEN}`,
